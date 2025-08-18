@@ -1,44 +1,65 @@
 import { GM_getValue, GM_setValue, GM_xmlhttpRequest } from "$";
+import { safeExtractJson } from "../utils/safeExtractJson";
 
 const STORAGE_KEY = "OPENAI_API_KEY";
+
 export type TranslateOptions = {
-  sourceLang?: string; // например 'EL' (Greek)
-  targetLang?: string; // например 'EN'
-  model?: string; // по умолчанию можно 'gpt-4o-mini'
+  sourceLang?: string; // исходный язык, напр. 'EL'
+  targetLangs?: string[]; // массив целевых языков, напр. ['RU','EN']
+  model?: string; // по умолчанию 'gpt-4o-mini'
   temperature?: number; // по умолчанию 0.2
   signal?: AbortSignal; // поддержка отмены
 };
+
+export type TranslateResult = Record<string, string>; // { RU: "...", EN: "..." }
 
 // Обязателен только text; всё остальное — опционально.
 export async function translateText(
   text: string,
   {
     sourceLang = "EL",
-    targetLang = "EN",
+    targetLangs = ["RU", "EN"],
     model = "gpt-4o-mini",
     temperature = 0.2,
     signal,
   }: TranslateOptions = {}
-): Promise<string> {
-  if (!text) return "";
+): Promise<TranslateResult> {
+  if (!text)
+    return Object.fromEntries(
+      targetLangs.map((l) => [l, ""])
+    ) as TranslateResult;
 
   const apiKey = await ensureApiKey();
 
-  const prompt =
-    `Translate the following ${sourceLang} subtitles into concise, natural ${targetLang}.\n` +
-    `- Keep it short and child-friendly (Peppa Pig style).\n` +
-    `- Return only the translation (no quotes, no notes).\n\n` +
-    `Text:\n${text}`;
+  // Чётко требуем минифицированный JSON без "фантика"
+  const langsList = targetLangs.join(", ");
+  const shape = `{${targetLangs.map((l) => `"${l}": ""`).join(",")}}`;
+
+  const system = [
+    `You are a precise translation engine.`,
+    `Given a source subtitle text in ${sourceLang}, you MUST return a JSON string with translations for these languages: [${langsList}].`,
+    `Output rules:`,
+    `- Output ONLY a minified JSON string (no markdown, no code fences, no extra text).`,
+    `- Keys MUST be exactly ${JSON.stringify(targetLangs)}.`,
+    `- Values MUST be strings.`,
+    `- Keep it concise, natural, child-friendly.`,
+    `- If something is untranslatable, repeat the source text.`,
+  ].join("\n");
+
+  const user = [
+    `Translate the following ${sourceLang} subtitles.`,
+    `Return ONLY a JSON string of the form: ${shape}`,
+    ``,
+    `Text:`,
+    text,
+  ].join("\n");
 
   const body = JSON.stringify({
     model,
     temperature,
     messages: [
-      {
-        role: "system",
-        content: `You translate ${sourceLang} subtitles into natural, concise ${targetLang} suitable for a kids' show.`,
-      },
-      { role: "user", content: prompt },
+      { role: "system", content: system },
+      { role: "user", content: user },
     ],
   });
 
@@ -57,8 +78,18 @@ export async function translateText(
     }
   );
 
-  const out = (data?.choices?.[0]?.message?.content ?? "").trim();
-  return out;
+  const content = (data?.choices?.[0]?.message?.content ?? "").trim();
+
+  // Парсим и валидируем JSON даже если модель вернёт "фантик"
+  const obj = safeExtractJson(content);
+  const result: TranslateResult = {} as TranslateResult;
+
+  for (const lang of targetLangs) {
+    const v = obj && typeof obj[lang] === "string" ? obj[lang] : text;
+    result[lang] = String(v ?? text).trim();
+  }
+
+  return result;
 }
 
 // Хранение ключа в Tampermonkey Storage
@@ -118,10 +149,12 @@ function gmFetchJson<T>(
       data: opts.data,
       timeout: opts.timeout ?? 30000,
       onload: (res) => {
-        //logs
-        const preview = res.responseText
-          ? JSON.parse(res.responseText)
-          : undefined;
+        let preview: unknown = undefined;
+        try {
+          preview = JSON.parse(res.responseText);
+        } catch {
+          preview = res.responseText?.slice(0, 200);
+        }
 
         console.log("[GM] ←", res.status, url, {
           bodyPreview: preview,

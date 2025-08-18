@@ -30,20 +30,16 @@ export default function CustomCaptionsOverlayControlled({
     controllers.current[w] = ac;
 
     try {
-      // один вызов — к EN (пример); аналогично можно вызвать ко второму языку, либо сделать свой batched JSON-промпт
-      const en = await translateText(w, {
+      const res = await translateText(w, {
         sourceLang: "EL",
-        targetLang: "EN",
+        targetLangs: ["EN", "RU"],
         signal: ac.signal,
       });
-      const ru = await translateText(w, {
-        sourceLang: "EL",
-        targetLang: "RU",
-        signal: ac.signal,
-      });
-
-      setTrMap((m) => ({ ...m, [w]: { en, ru, loading: false } }));
-    } catch (e) {
+      setTrMap((m) => ({
+        ...m,
+        [w]: { en: res.EN, ru: res.RU, loading: false },
+      }));
+    } catch {
       if (ac.signal.aborted) return;
       setTrMap((m) => ({
         ...m,
