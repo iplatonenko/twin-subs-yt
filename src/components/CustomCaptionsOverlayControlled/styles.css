@@ -1,0 +1,7 @@
+.custom-captions-overlay-controlled {
+  max-width: 80vw;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  cursor: auto;
+}

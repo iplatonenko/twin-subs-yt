@@ -3,6 +3,7 @@ import { useDraggable } from "./hooks/useDraggable";
 import { getCurrentCaptionText, tokenize } from "./utils/captions";
 import CustomCaptionsOverlay from "./components/CustomCaptionsOverlay";
 import WordChip from "./components/WordChip";
+import CustomCaptionsOverlayControlled from "./components/CustomCaptionsOverlayControlled";
 
 function App() {
   const [words, setWords] = useState<string[]>([]);
@@ -41,9 +42,7 @@ function App() {
 
   return (
     <CustomCaptionsOverlay ref={overlayRef} {...bind} overlayStyle={style}>
-      {words.map((w, i) => (
-        <WordChip key={`${w}-${i}`}>{w}</WordChip>
-      ))}
+      <CustomCaptionsOverlayControlled words={words} />
     </CustomCaptionsOverlay>
   );
 }
