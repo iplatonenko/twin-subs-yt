@@ -2,6 +2,7 @@
 import { useRef, useState } from "react";
 import WordChip from "../WordChip";
 import "./styles.css";
+import { translateText } from "../../lib/openai";
 
 // Тип кэша переводов
 type Tr = { en?: string; ru?: string; loading?: boolean; error?: string };
@@ -13,13 +14,6 @@ export default function CustomCaptionsOverlayControlled({
   const [openWord, setOpenWord] = useState<string | null>(null);
   const [trMap, setTrMap] = useState<Record<string, Tr>>({});
   const controllers = useRef<Record<string, AbortController>>({});
-
-  // заглушка API (поменяешь на реальный вызов)
-  const translate = async (word: string, signal: AbortSignal) => {
-    // имитируем задержку
-    await new Promise((r) => setTimeout(r, 250));
-    return { en: word, ru: word }; // потом подставишь реальный перевод
-  };
 
   const ensureTranslation = async (w: string) => {
     // если уже есть (или идёт загрузка) — ничего не делаем
@@ -36,12 +30,20 @@ export default function CustomCaptionsOverlayControlled({
     controllers.current[w] = ac;
 
     try {
-      const res = await translate(w, ac.signal);
-      setTrMap((m) => ({
-        ...m,
-        [w]: { en: res.en, ru: res.ru, loading: false },
-      }));
-    } catch (e: any) {
+      // один вызов — к EN (пример); аналогично можно вызвать ко второму языку, либо сделать свой batched JSON-промпт
+      const en = await translateText(w, {
+        sourceLang: "EL",
+        targetLang: "EN",
+        signal: ac.signal,
+      });
+      const ru = await translateText(w, {
+        sourceLang: "EL",
+        targetLang: "RU",
+        signal: ac.signal,
+      });
+
+      setTrMap((m) => ({ ...m, [w]: { en, ru, loading: false } }));
+    } catch (e) {
       if (ac.signal.aborted) return;
       setTrMap((m) => ({
         ...m,

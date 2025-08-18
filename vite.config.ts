@@ -12,6 +12,8 @@ export default defineConfig({
         icon: "https://vitejs.dev/logo.svg",
         namespace: "npm/vite-plugin-monkey",
         match: ["https://www.youtube.com/watch*"],
+        grant: ["GM_getValue", "GM_setValue", "GM_xmlhttpRequest"],
+        connect: ["api.openai.com"],
       },
     }),
   ],

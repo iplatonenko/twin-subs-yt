@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useDraggable } from "./hooks/useDraggable";
 import { getCurrentCaptionText, tokenize } from "./utils/captions";
 import CustomCaptionsOverlay from "./components/CustomCaptionsOverlay";
-import WordChip from "./components/WordChip";
 import CustomCaptionsOverlayControlled from "./components/CustomCaptionsOverlayControlled";
 
 function App() {
