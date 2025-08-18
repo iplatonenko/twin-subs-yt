@@ -54,6 +54,10 @@ export default function CustomCaptionsOverlayControlled({
     if (open) ensureTranslation(word);
   };
 
+  const sentence = words.join(" ");
+  const sentenceOpen = openWord === sentence;
+  const sentenceTr = trMap[sentence];
+
   return (
     <div className="custom-captions-overlay-controlled" {...rest}>
       {words.map((w, i) => {
@@ -71,6 +75,14 @@ export default function CustomCaptionsOverlayControlled({
           />
         );
       })}
+      <WordChip
+        text={"🪄"}
+        open={sentenceOpen}
+        onOpenChange={(o) => handleOpenChange(sentence, o)}
+        enText={sentenceTr?.en}
+        ruText={sentenceTr?.ru}
+        loading={sentenceTr?.loading}
+      />
     </div>
   );
 }

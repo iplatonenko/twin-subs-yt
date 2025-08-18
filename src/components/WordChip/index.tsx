@@ -59,13 +59,13 @@ export default function WordChip({
 
       <span className={`word-popover ${show ? "is-open" : ""}`} role="tooltip">
         <div className="word-popover__row">
-          <span className="word-popover__label">EN</span>
+          <span className="word-popover__label">EN:</span>
           <span className="word-popover__value">
             {loading ? "…" : enText ?? text}
           </span>
         </div>
         <div className="word-popover__row">
-          <span className="word-popover__label">RU</span>
+          <span className="word-popover__label">RU:</span>
           <span className="word-popover__value">
             {loading ? "…" : ruText ?? text}
           </span>

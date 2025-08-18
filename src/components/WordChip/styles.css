@@ -28,7 +28,7 @@
   min-width: 160px;
   max-width: 280px;
   line-height: 1.4;
-  font-size: 14px;
+  font-size: 16px;
   z-index: 1000000;
   filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.35));
   transition: opacity 120ms ease, transform 120ms ease, visibility 120ms linear;
@@ -59,7 +59,6 @@
 }
 .word-popover__label {
   flex: 0 0 auto;
-  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
   opacity: 0.85;
