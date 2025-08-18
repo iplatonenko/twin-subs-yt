@@ -1,3 +1,9 @@
+.word-chip-wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: auto;
+}
+
 .word-chip {
   display: inline-block;
   padding: 2px 6px;
@@ -5,4 +11,73 @@
   background: rgba(255, 255, 255, 0.12);
   user-select: text;
   cursor: default;
+}
+
+/* поповер */
+.word-popover {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) scale(0.98);
+  transform-origin: bottom center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: auto; /* важно! теперь можно кликать внутри */
+  background: rgba(15, 15, 18, 0.85);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 8px 10px;
+  min-width: 160px;
+  max-width: 280px;
+  line-height: 1.4;
+  font-size: 14px;
+  z-index: 1000000;
+  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.35));
+  transition: opacity 120ms ease, transform 120ms ease, visibility 120ms linear;
+}
+
+.word-popover::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(15, 15, 18, 0.98);
+}
+
+/* теперь ховер работает на весь wrapper (чип + поповер) */
+.word-chip-wrapper:hover .word-popover,
+.word-chip-wrapper:focus-within .word-popover {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) scale(1);
+}
+
+.word-popover__row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 16px;
+}
+
+.word-popover__row + .word-popover__row {
+  margin-top: 6px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.15);
+  padding-top: 6px;
+}
+
+.word-popover__label {
+  flex: 0 0 auto;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+  min-width: 28px;
+}
+
+.word-popover__value {
+  flex: 1 1 auto;
+  word-break: break-word;
+  white-space: normal;
 }
