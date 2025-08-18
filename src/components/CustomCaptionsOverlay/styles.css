@@ -1,0 +1,16 @@
+.custom-captions-overlay {
+  z-index: 999999;
+  max-width: 80vw;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 8px;
+  color: #fff;
+  line-height: 1.6;
+  font-size: 24px;
+  font-weight: 500;
+  backdrop-filter: blur(2px);
+  cursor: grab;
+}
