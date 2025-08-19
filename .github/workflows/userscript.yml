@@ -57,21 +57,27 @@ jobs:
       - name: Publish to dist branch
         shell: bash
         run: |
+          set -e
+
           # Save file to /tmp/publish
           mkdir -p /tmp/publish
           cp -f "$BUILD_OUT" /tmp/publish/${SCRIPT_BASENAME}.user.js
 
-          # Switch to or create the dist branch
           git fetch origin
-          git checkout -B dist
+
+          # Switch to or create the dist branch
+          if git show-ref --verify --quiet refs/heads/dist; then
+            git switch dist
+          else
+            git switch --orphan dist
+          fi
 
           # Clear the working tree of the dist branch and leave only the necessary file
-          rm -rf ./* .[^.]* || true
-          git add -A
-          git commit -m "chore(dist): cleanup" || true
+          git ls-files -z | xargs -0 git rm -q -f || true
 
           # Put the userscript file in the root of the dist branch
           cp -f /tmp/publish/${SCRIPT_BASENAME}.user.js ./
+
           git add -f ${SCRIPT_BASENAME}.user.js
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
@@ -81,4 +87,4 @@ jobs:
           git push -f origin dist
 
           # Return to main branch
-          git checkout -f main || true
+          git switch -q main || true
