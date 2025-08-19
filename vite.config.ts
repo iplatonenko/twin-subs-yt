@@ -16,9 +16,9 @@ export default defineConfig({
         grant: ["GM_getValue", "GM_setValue", "GM_xmlhttpRequest"],
         connect: ["api.openai.com"],
         updateURL:
-          "https://raw.githubusercontent.com/iplatonenko/twin-subs-yt/main/dist/twin-subs-yt.user.js",
+          "https://raw.githubusercontent.com/iplatonenko/twin-subs-yt/dist/twin-subs-yt.user.js",
         downloadURL:
-          "https://raw.githubusercontent.com/iplatonenko/twin-subs-yt/main/dist/twin-subs-yt.user.js",
+          "https://raw.githubusercontent.com/iplatonenko/twin-subs-yt/dist/twin-subs-yt.user.js",
       },
     }),
   ],

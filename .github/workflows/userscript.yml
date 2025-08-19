@@ -13,8 +13,7 @@ permissions:
 env:
   NODE_VERSION: "20"
   SCRIPT_BASENAME: "twin-subs-yt"
-  DIST_DIR: "dist"
-  USER_JS: "dist/twin-subs-yt.user.js"
+  BUILD_OUT: "dist/twin-subs-yt.user.js"
 
 jobs:
   build:
@@ -41,27 +40,45 @@ jobs:
         run: |
           echo "Building version $BUILD_VERSION"
           BUILD_VERSION=$BUILD_VERSION npm run build
+          test -f "$BUILD_OUT" || (echo "Not found $BUILD_OUT" && exit 1)
 
       - name: Patch @version in .user.js
         shell: bash
         run: |
-          if [ ! -f "$USER_JS" ]; then
-            echo "Not found $USER_JS" >&2
-            exit 1
-          fi
           node -e "
             const fs=require('fs');
-            const p=process.env.USER_JS;
+            const p=process.env.BUILD_OUT;
             let s=fs.readFileSync(p,'utf8');
-            if(!/@version\\s+/m.test(s)){ console.error('No @version in meta header'); process.exit(1); }
+            if(!/@version\\s+/m.test(s)){ console.error('No @version in header'); process.exit(1); }
             s=s.replace(/(@version\\s+).*/m, (m,g)=> g + process.env.BUILD_VERSION);
             fs.writeFileSync(p,s);
           "
 
-      - name: Commit dist
+      - name: Publish to dist branch
+        shell: bash
         run: |
+          # Save file to /tmp/publish
+          mkdir -p /tmp/publish
+          cp -f "$BUILD_OUT" /tmp/publish/${SCRIPT_BASENAME}.user.js
+
+          # Switch to or create the dist branch
+          git fetch origin
+          git checkout -B dist
+
+          # Clear the working tree of the dist branch and leave only the necessary file
+          rm -rf ./* .[^.]* || true
+          git add -A
+          git commit -m "chore(dist): cleanup" || true
+
+          # Put the userscript file in the root of the dist branch
+          cp -f /tmp/publish/${SCRIPT_BASENAME}.user.js ./
+          git add -f ${SCRIPT_BASENAME}.user.js
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
-          git add "$USER_JS"
-          git commit -m "build: ${{ env.SCRIPT_BASENAME }} $BUILD_VERSION [skip ci]" || echo "Nothing to commit"
-          git push
+          git commit -m "publish: ${SCRIPT_BASENAME} ${BUILD_VERSION}" || echo "Nothing to commit"
+
+          # Publish the dist branch
+          git push -f origin dist
+
+          # Return to main branch
+          git checkout -f main || true
