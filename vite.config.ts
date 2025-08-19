@@ -9,7 +9,7 @@ export default defineConfig({
     monkey({
       entry: "src/main.tsx",
       userscript: {
-        icon: "https://vitejs.dev/logo.svg",
+        // icon: "https://vitejs.dev/logo.svg",
         namespace: "npm/vite-plugin-monkey",
         match: ["https://www.youtube.com/watch*"],
         grant: ["GM_getValue", "GM_setValue", "GM_xmlhttpRequest"],
