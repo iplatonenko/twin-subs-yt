@@ -14,7 +14,7 @@ env:
   NODE_VERSION: "20"
   SCRIPT_BASENAME: "twin-subs-yt"
   DIST_DIR: "dist"
-  USER_JS: "${{ env.DIST_DIR }}/${{ env.SCRIPT_BASENAME }}.user.js"
+  USER_JS: "dist/twin-subs-yt.user.js"
 
 jobs:
   build:
