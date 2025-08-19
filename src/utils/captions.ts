@@ -1,6 +1,8 @@
+import { CAPTION_SEGMENT, CAPTIONS_TEXT } from "../constants/ytClasses";
+
 export const getCurrentCaptionText = () => {
   const segs = Array.from(
-    document.querySelectorAll<HTMLElement>(".ytp-caption-segment")
+    document.querySelectorAll<HTMLElement>(CAPTION_SEGMENT)
   );
   if (segs.length > 0)
     return segs
@@ -8,7 +10,7 @@ export const getCurrentCaptionText = () => {
       .join(" ")
       .trim();
 
-  const fallback = document.querySelector<HTMLElement>(".captions-text");
+  const fallback = document.querySelector<HTMLElement>(CAPTIONS_TEXT);
   return (fallback?.textContent ?? "").trim();
 };
 

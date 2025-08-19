@@ -4,16 +4,15 @@ import { safeExtractJson } from "../utils/safeExtractJson";
 const STORAGE_KEY = "OPENAI_API_KEY";
 
 export type TranslateOptions = {
-  sourceLang?: string; // исходный язык, напр. 'EL'
-  targetLangs?: string[]; // массив целевых языков, напр. ['RU','EN']
-  model?: string; // по умолчанию 'gpt-4o-mini'
-  temperature?: number; // по умолчанию 0.2
-  signal?: AbortSignal; // поддержка отмены
+  sourceLang?: string;
+  targetLangs?: string[];
+  model?: string;
+  temperature?: number;
+  signal?: AbortSignal;
 };
 
-export type TranslateResult = Record<string, string>; // { RU: "...", EN: "..." }
+export type TranslateResult = Record<string, string>;
 
-// Обязателен только text; всё остальное — опционально.
 export async function translateText(
   text: string,
   {
@@ -31,7 +30,6 @@ export async function translateText(
 
   const apiKey = await ensureApiKey();
 
-  // Чётко требуем минифицированный JSON без "фантика"
   const langsList = targetLangs.join(", ");
   const shape = `{${targetLangs.map((l) => `"${l}": ""`).join(",")}}`;
 

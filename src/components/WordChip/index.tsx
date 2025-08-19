@@ -3,16 +3,13 @@ import "./styles.css";
 interface WordChipProps {
   text: string;
 
-  // контролируемое открытие поповера
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 
-  // данные для поповера
   enText?: string;
   ruText?: string;
-  loading?: boolean; // показать спиннер/скелетон, пока ждём перевод
+  loading?: boolean;
 
-  // задержка "намерения" (чтобы не дёргать API при случайном ховере)
   hoverOpenDelayMs?: number;
   hoverCloseDelayMs?: number;
 }
@@ -70,7 +67,6 @@ export default function WordChip({
             {loading ? "…" : ruText ?? text}
           </span>
         </div>
-        {/* тут потом добавим кнопки */}
       </span>
     </span>
   );

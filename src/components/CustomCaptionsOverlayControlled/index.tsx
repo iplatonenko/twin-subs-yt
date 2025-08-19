@@ -1,10 +1,8 @@
-// components/CustomCaptionsOverlay.tsx (фрагмент)
 import { useRef, useState } from "react";
 import WordChip from "../WordChip";
 import "./styles.css";
 import { translateText } from "../../lib/openai";
 
-// Тип кэша переводов
 type Tr = { en?: string; ru?: string; loading?: boolean; error?: string };
 
 export default function CustomCaptionsOverlayControlled({
@@ -16,15 +14,15 @@ export default function CustomCaptionsOverlayControlled({
   const controllers = useRef<Record<string, AbortController>>({});
 
   const ensureTranslation = async (w: string) => {
-    // если уже есть (или идёт загрузка) — ничего не делаем
-    if (trMap[w]?.en || trMap[w]?.ru || trMap[w]?.loading) return;
-    // ставим флаг загрузки
+    const isExist = trMap[w]?.en || trMap[w]?.ru || trMap[w]?.loading;
+
+    if (isExist) return;
+
     setTrMap((m) => ({
       ...m,
       [w]: { ...(m[w] ?? {}), loading: true, error: undefined },
     }));
 
-    // отменяем прошлый запрос для этого слова
     controllers.current[w]?.abort();
     const ac = new AbortController();
     controllers.current[w] = ac;
@@ -48,7 +46,6 @@ export default function CustomCaptionsOverlayControlled({
     }
   };
 
-  // при открытии поповера запрашиваем перевод (один раз)
   const handleOpenChange = (word: string, open: boolean) => {
     setOpenWord(open ? word : openWord === word ? null : openWord);
     if (open) ensureTranslation(word);
@@ -75,14 +72,16 @@ export default function CustomCaptionsOverlayControlled({
           />
         );
       })}
-      <WordChip
-        text={"🪄"}
-        open={sentenceOpen}
-        onOpenChange={(o) => handleOpenChange(sentence, o)}
-        enText={sentenceTr?.en}
-        ruText={sentenceTr?.ru}
-        loading={sentenceTr?.loading}
-      />
+      {words.length > 0 && (
+        <WordChip
+          text={"🪄"}
+          open={sentenceOpen}
+          onOpenChange={(o) => handleOpenChange(sentence, o)}
+          enText={sentenceTr?.en}
+          ruText={sentenceTr?.ru}
+          loading={sentenceTr?.loading}
+        />
+      )}
     </div>
   );
 }

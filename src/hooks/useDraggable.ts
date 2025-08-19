@@ -9,7 +9,6 @@ export function useDraggable(
 ) {
   const [pos, setPos] = useState<Point | null>(null);
 
-  // локальное состояние драга
   const drag = useRef({
     pointerId: -1,
     startX: 0,
@@ -19,7 +18,6 @@ export function useDraggable(
     dragging: false,
   });
 
-  // helper: зажать позицию в пределах окна
   const clampIntoViewport = (el: HTMLElement, left: number, top: number) => {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
@@ -32,7 +30,6 @@ export function useDraggable(
     };
   };
 
-  // начальная раскладка
   useEffect(() => {
     const el = ref.current;
     if (!el || pos) return;
@@ -46,7 +43,6 @@ export function useDraggable(
       if (initialPlacement) {
         next = initialPlacement(el, vw, vh);
       } else {
-        // дефолт: по центру снизу (аналог bottom: 14vh)
         const bottomGap = Math.round(vh * 0.14);
         const left = Math.max(0, Math.round((vw - rect.width) / 2));
         const top = Math.max(0, vh - rect.height - bottomGap);
@@ -63,10 +59,8 @@ export function useDraggable(
       cancelAnimationFrame(r);
       window.removeEventListener("resize", place);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ref, initialPlacement]); // pos намеренно не включаем
+  }, [ref, initialPlacement]);
 
-  // pointer handlers
   const onPointerDown: React.PointerEventHandler<HTMLElement> = (e) => {
     if ((e.pointerType === "mouse" && e.button !== 0) || !ref.current || !pos)
       return;
@@ -112,7 +106,6 @@ export function useDraggable(
     }
   };
 
-  // удобный набор для спреда на элемент
   const bind = {
     onPointerDown,
     onPointerMove,
@@ -120,10 +113,9 @@ export function useDraggable(
     onPointerCancel: onPointerUpOrCancel,
   } as const;
 
-  // style для позиционирования
   const style: React.CSSProperties = pos
     ? { position: "fixed", left: pos.left, top: pos.top, visibility: "visible" }
-    : { position: "fixed", visibility: "hidden" }; // скрываем до расчёта
+    : { position: "fixed", visibility: "hidden" };
 
   return { pos, setPos, bind, style };
 }
