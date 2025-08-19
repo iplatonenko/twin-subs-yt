@@ -1,0 +1,67 @@
+name: Build & Publish Userscript
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "dist/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  NODE_VERSION: "20"
+  SCRIPT_BASENAME: "twin-subs-yt"
+  DIST_DIR: "dist"
+  USER_JS: "${{ env.DIST_DIR }}/${{ env.SCRIPT_BASENAME }}.user.js"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: Set version (CalVer UTC)
+        run: echo "BUILD_VERSION=$(date -u +'%Y.%m.%d.%H%M')" >> $GITHUB_ENV
+
+      - name: Build
+        run: |
+          echo "Building version $BUILD_VERSION"
+          BUILD_VERSION=$BUILD_VERSION npm run build
+
+      - name: Patch @version in .user.js
+        shell: bash
+        run: |
+          if [ ! -f "$USER_JS" ]; then
+            echo "Not found $USER_JS" >&2
+            exit 1
+          fi
+          node -e "
+            const fs=require('fs');
+            const p=process.env.USER_JS;
+            let s=fs.readFileSync(p,'utf8');
+            if(!/@version\\s+/m.test(s)){ console.error('No @version in meta header'); process.exit(1); }
+            s=s.replace(/(@version\\s+).*/m, (m,g)=> g + process.env.BUILD_VERSION);
+            fs.writeFileSync(p,s);
+          "
+
+      - name: Commit dist
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$USER_JS"
+          git commit -m "build: ${{ env.SCRIPT_BASENAME }} $BUILD_VERSION [skip ci]" || echo "Nothing to commit"
+          git push

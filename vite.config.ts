@@ -9,11 +9,16 @@ export default defineConfig({
     monkey({
       entry: "src/main.tsx",
       userscript: {
-        // icon: "https://vitejs.dev/logo.svg",
-        namespace: "npm/vite-plugin-monkey",
+        icon: "https://raw.githubusercontent.com/iplatonenko/twin-subs-yt/main/assets/logo.svg",
+        namespace: "iplatonenko",
+        name: "Twin Subs YT",
         match: ["https://www.youtube.com/watch*"],
         grant: ["GM_getValue", "GM_setValue", "GM_xmlhttpRequest"],
         connect: ["api.openai.com"],
+        updateURL:
+          "https://raw.githubusercontent.com/iplatonenko/twin-subs-yt/main/dist/twin-subs-yt.user.js",
+        downloadURL:
+          "https://raw.githubusercontent.com/iplatonenko/twin-subs-yt/main/dist/twin-subs-yt.user.js",
       },
     }),
   ],
