@@ -9,12 +9,7 @@ function App() {
   const [words, setWords] = useState<string[]>([]);
   const overlayRef = useRef<HTMLDivElement | null>(null);
 
-  const { bind, style } = useDraggable(overlayRef, (el, vw, vh) => {
-    const rect = el.getBoundingClientRect();
-    const left = Math.round((vw - rect.width) / 2);
-    const top = Math.round((vh - rect.height) / 2);
-    return { left, top };
-  });
+  const { bind, style } = useDraggable(overlayRef);
 
   useEffect(() => {
     // remove captions from the YouTube player

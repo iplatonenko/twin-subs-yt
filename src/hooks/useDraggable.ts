@@ -1,12 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
 type Point = { left: number; top: number };
-type InitialPlacement = (el: HTMLElement, vw: number, vh: number) => Point;
 
-export function useDraggable(
-  ref: React.RefObject<HTMLDivElement | null>,
-  initialPlacement?: InitialPlacement
-) {
+export function useDraggable(ref: React.RefObject<HTMLDivElement | null>) {
   const [pos, setPos] = useState<Point | null>(null);
 
   const drag = useRef({
@@ -37,19 +33,11 @@ export function useDraggable(
     const place = () => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
-      const rect = el.getBoundingClientRect();
-      let next: Point;
 
-      if (initialPlacement) {
-        next = initialPlacement(el, vw, vh);
-      } else {
-        const bottomGap = Math.round(vh * 0.14);
-        const left = Math.max(0, Math.round((vw - rect.width) / 2));
-        const top = Math.max(0, vh - rect.height - bottomGap);
-        next = { left, top };
-      }
+      const left = Math.round(vw * 0.1);
+      const top = Math.round(vh * 0.6);
 
-      next = clampIntoViewport(el, next.left, next.top);
+      const next = clampIntoViewport(el, left, top);
       setPos(next);
     };
 
@@ -59,7 +47,7 @@ export function useDraggable(
       cancelAnimationFrame(r);
       window.removeEventListener("resize", place);
     };
-  }, [ref, initialPlacement]);
+  }, [ref]);
 
   const onPointerDown: React.PointerEventHandler<HTMLElement> = (e) => {
     if ((e.pointerType === "mouse" && e.button !== 0) || !ref.current || !pos)
