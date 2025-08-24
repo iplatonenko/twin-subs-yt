@@ -8,8 +8,13 @@ import { CAPTION_WINDOW_CONTAINER } from "./constants/ytClasses";
 function App() {
   const [words, setWords] = useState<string[]>([]);
   const overlayRef = useRef<HTMLDivElement | null>(null);
+  const prevWordsRef = useRef("");
 
   const { bind, style } = useDraggable(overlayRef);
+
+  const hideStyles = words.length
+    ? {}
+    : ({ opacity: 0, pointerEvents: "none" } as const);
 
   useEffect(() => {
     // remove captions from the YouTube player
@@ -25,6 +30,11 @@ function App() {
     const interval = window.setInterval(() => {
       const txt = getCurrentCaptionText();
       const tokens = tokenize(txt);
+      const currentWords = Array.from(tokens).join(" ");
+      if (currentWords === prevWordsRef.current) {
+        return;
+      }
+      prevWordsRef.current = currentWords;
       setWords(Array.from(tokens));
     }, 500);
 
@@ -32,7 +42,11 @@ function App() {
   }, []);
 
   return (
-    <CustomCaptionsOverlay ref={overlayRef} {...bind} overlayStyle={style}>
+    <CustomCaptionsOverlay
+      ref={overlayRef}
+      {...bind}
+      overlayStyle={{ ...style, ...hideStyles }}
+    >
       <CustomCaptionsOverlayControlled words={words} />
     </CustomCaptionsOverlay>
   );
