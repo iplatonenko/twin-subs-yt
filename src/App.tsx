@@ -3,7 +3,8 @@ import { useDraggable } from "./hooks/useDraggable";
 import { getCurrentCaptionText, tokenize } from "./utils/captions";
 import CustomCaptionsOverlay from "./components/CustomCaptionsOverlay";
 import CustomCaptionsOverlayControlled from "./components/CustomCaptionsOverlayControlled";
-import { CAPTION_WINDOW_CONTAINER } from "./constants/ytClasses";
+import { CAPTION_WINDOW_CONTAINER } from "./constants/youtubeSelectors";
+import { useHoverPauseVideo } from "./hooks/useHoverPauseVideo";
 
 function App() {
   const [words, setWords] = useState<string[]>([]);
@@ -11,6 +12,8 @@ function App() {
   const prevWordsRef = useRef("");
 
   const { bind, style } = useDraggable(overlayRef);
+
+  const { bind: hoverPause } = useHoverPauseVideo();
 
   const hideStyles = words.length
     ? {}
@@ -45,6 +48,7 @@ function App() {
     <CustomCaptionsOverlay
       ref={overlayRef}
       {...bind}
+      {...hoverPause}
       overlayStyle={{ ...style, ...hideStyles }}
     >
       <CustomCaptionsOverlayControlled words={words} />

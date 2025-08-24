@@ -1,4 +1,4 @@
-import { CAPTION_SEGMENT, CAPTIONS_TEXT } from "../constants/ytClasses";
+import { CAPTION_SEGMENT, CAPTIONS_TEXT } from "../constants/youtubeSelectors";
 
 export const getCurrentCaptionText = () => {
   const segs = Array.from(
