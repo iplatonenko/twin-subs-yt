@@ -25,6 +25,8 @@
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   padding: 8px 10px;
+  display: inline-block;
+  width: max-content;
   min-width: 160px;
   max-width: 280px;
   line-height: 1.4;
