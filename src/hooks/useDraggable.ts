@@ -2,6 +2,12 @@ import { useEffect, useRef, useState } from "react";
 
 type Point = { left: number; top: number };
 
+const isInteractive = (el: HTMLElement | null): boolean => {
+  if (!el) return false;
+  if (el.closest("[data-no-drag]")) return true;
+  return false;
+};
+
 export function useDraggable(ref: React.RefObject<HTMLDivElement | null>) {
   const [pos, setPos] = useState<Point | null>(null);
 
@@ -50,7 +56,13 @@ export function useDraggable(ref: React.RefObject<HTMLDivElement | null>) {
   }, [ref]);
 
   const onPointerDown: React.PointerEventHandler<HTMLElement> = (e) => {
-    if ((e.pointerType === "mouse" && e.button !== 0) || !ref.current || !pos)
+    const interactive = isInteractive(e.target as HTMLElement);
+    if (
+      interactive ||
+      (e.pointerType === "mouse" && e.button !== 0) ||
+      !ref.current ||
+      !pos
+    )
       return;
 
     const el = ref.current;

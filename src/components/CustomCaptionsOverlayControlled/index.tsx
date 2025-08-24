@@ -75,6 +75,7 @@ export default function CustomCaptionsOverlayControlled({
       {words.length > 0 && (
         <WordChip
           text={"🪄"}
+          actions={false}
           open={sentenceOpen}
           onOpenChange={(o) => handleOpenChange(sentence, o)}
           enText={sentenceTr?.en}
